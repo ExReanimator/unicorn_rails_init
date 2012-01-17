@@ -25,7 +25,7 @@ APP_ROOT="/home/$APP_USER/www/$APP_NAME"
 PID="/home/$APP_USER/www/$APP_NAME/tmp/pids/unicorn.pid"
 ENV=production
 
-GEM_HOME="/home/$APP_USER/.rvm/gems/$APP_GEMSET"
+GEM_HOME="/home/$APP_USER/.rvm/gems/$APP_GEMSET_PATH"
 
 UNICORN_OPTS="-D -E $ENV -c $APP_ROOT/config/unicorn.rb"
 
