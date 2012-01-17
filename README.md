@@ -11,11 +11,12 @@ Based on kiskolabs script.
 ## Installation
 
 Move the script to /etc/init.d/YOUR_APP_NAME and correct the settings inside it.
+
 Run the following commands to get it to run on boot:
 
-    sudo chmod +x /etc/init.d/YOUR_APP_NAME
+    $ sudo chmod +x /etc/init.d/YOUR_APP_NAME
 
-    sudo update-rc.d YOUR_APP_NAME defaults
+    $ sudo update-rc.d YOUR_APP_NAME defaults
 
 
 ## Usage
