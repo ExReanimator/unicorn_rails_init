@@ -16,27 +16,39 @@
 set -u
 set -e
 
-# Change these to match your app:
+# SETTINGS
+#
+# 1. If you use .rvmrc file (with "rvm use" content)
 APP_NAME=your_application_name
-APP_GEMSET="1.9.2@$APP_NAME"
-APP_GEMSET_PATH="ruby-1.9.2-p290@$APP_NAME"
 APP_USER="unicorn"
-APP_ROOT="/home/$APP_USER/www/$APP_NAME"
-PID="/home/$APP_USER/www/$APP_NAME/tmp/pids/unicorn.pid"
+USER_HOME="/home/$APP_USER"
+APP_ROOT="$USER_HOME/www/$APP_NAME"
+PID="$USER_HOME/www/$APP_NAME/tmp/pids/unicorn.pid"
 ENV=production
-
-GEM_HOME="/home/$APP_USER/.rvm/gems/$APP_GEMSET_PATH"
-
 UNICORN_OPTS="-D -E $ENV -c $APP_ROOT/config/unicorn.rb"
+SET_PATH="source /home/$APP_USER/.rvm/scripts/rvm; cd $APP_ROOT"
+CMD="$SET_PATH; unicorn_rails $UNICORN_OPTS"
 
-SET_PATH="cd $APP_ROOT; rvm use $APP_GEMSET --create; export GEM_HOME=$GEM_HOME"
-CMD="$SET_PATH; $GEM_HOME/bin/unicorn_rails $UNICORN_OPTS"
+# 2. If you don't use .rvmrc file (with "rvm use" content) comment previous settings and use settings below instead.
+#
+# APP_NAME=your_application_name
+# APP_GEMSET="1.9.2@$APP_NAME"
+# APP_GEMSET_PATH="ruby-1.9.2-p290@$APP_NAME"
+# APP_USER="unicorn"
+# USER_HOME="/home/$APP_USER"
+# APP_ROOT="$USER_HOME/www/$APP_NAME"
+# PID="$USER_HOME/www/$APP_NAME/tmp/pids/unicorn.pid"
+# ENV=production
+# GEM_HOME="$USER_HOME/.rvm/gems/$APP_GEMSET_PATH"
+# UNICORN_OPTS="-D -E $ENV -c $APP_ROOT/config/unicorn.rb"
+# SET_PATH="source /home/$APP_USER/.rvm/scripts/rvm; cd $APP_ROOT; rvm use $APP_GEMSET --create; export GEM_HOME=$GEM_HOME"
+#CMD="$SET_PATH; $GEM_HOME/bin/unicorn_rails $UNICORN_OPTS"
+
+
+# end of user settings
+
 
 old_pid="$PID.oldbin"
-# end of user preferences
-
-
-cd $APP_ROOT || exit 1
 
 sig () {
 test -s "$PID" && kill -$1 `cat $PID`
