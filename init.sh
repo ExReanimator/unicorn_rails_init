@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 ### BEGIN INIT INFO
 # Provides: TYPE_THIS_FILE_NAME_HERE
 # Required-Start: $all
@@ -20,11 +20,12 @@ set -e
 #
 # 1. If you use .rvmrc file (with "rvm use" content)
 APP_NAME=your_application_name
-APP_USER="unicorn"
+APP_USER="your_user" # usually it is a server administrator user
+ENV=production
+
 USER_HOME="/home/$APP_USER"
 APP_ROOT="$USER_HOME/www/$APP_NAME"
-PID="$USER_HOME/www/$APP_NAME/tmp/pids/unicorn.pid"
-ENV=production
+PID="$APP_ROOT/tmp/pids/unicorn.pid"
 UNICORN_OPTS="-D -E $ENV -c $APP_ROOT/config/unicorn.rb"
 SET_PATH="source /home/$APP_USER/.rvm/scripts/rvm; cd $APP_ROOT"
 CMD="$SET_PATH; unicorn_rails $UNICORN_OPTS"
@@ -32,8 +33,8 @@ CMD="$SET_PATH; unicorn_rails $UNICORN_OPTS"
 # 2. If you don't use .rvmrc file (with "rvm use" content) comment previous settings and use settings below instead.
 #
 # APP_NAME=your_application_name
-# APP_GEMSET="1.9.2@$APP_NAME"
-# APP_GEMSET_PATH="ruby-1.9.2-p290@$APP_NAME"
+# APP_GEMSET="1.9.3@$APP_NAME"
+# APP_GEMSET_PATH="ruby-1.9.3-p125@$APP_NAME"
 # APP_USER="unicorn"
 # USER_HOME="/home/$APP_USER"
 # APP_ROOT="$USER_HOME/www/$APP_NAME"
@@ -47,15 +48,8 @@ CMD="$SET_PATH; unicorn_rails $UNICORN_OPTS"
 
 # end of user settings
 
-
-old_pid="$PID.oldbin"
-
 sig () {
 test -s "$PID" && kill -$1 `cat $PID`
-}
-
-oldsig () {
-test -s $old_pid && kill -$1 `cat $old_pid`
 }
 
 case ${1-help} in
@@ -71,23 +65,17 @@ force-stop)
 sig TERM && exit 0
 echo >&2 "Not running"
 ;;
-restart|reload)
-sig HUP && echo reloaded OK && exit 0
-echo >&2 "Couldn't reload, starting '$CMD' instead"
-su - $APP_USER -c "$CMD"
+restart)
+sig QUIT && echo stopped OK
+su - $APP_USER -c "$CMD" && exit 0
+echo >&2 "Couldn't restart"
 ;;
-upgrade)
-sig USR2 && exit 0
-echo >&2 "Couldn't upgrade, starting '$CMD' instead"
-su - $APP_USER -c "$CMD"
-;;
-rotate)
-sig USR1 && echo rotated logs OK && exit 0
-echo >&2 "Couldn't rotate logs" && exit 1
+reload)
+sig USR2 && echo reloaded OK && exit 0
+echo >&2 "Couldn't 'hot'-reload, try to restart instead"
 ;;
 *)
-  echo >&2 "Usage: $0 <start|stop|restart|upgrade|rotate|force-stop>"
+  echo >&2 "Usage: $0 <start|stop|restart|reload|force-stop>"
   exit 1
   ;;
 esac
-
