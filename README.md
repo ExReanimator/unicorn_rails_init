@@ -8,7 +8,6 @@ Based on kiskolabs script.
 ## Requirements
 
 * Debian-based os
-* rails > 3
 * rvm
 
 ## Installation
