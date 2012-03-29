@@ -45,11 +45,15 @@ CMD="$SET_PATH; unicorn_rails $UNICORN_OPTS"
 # SET_PATH="source /home/$APP_USER/.rvm/scripts/rvm; cd $APP_ROOT; rvm use $APP_GEMSET --create; export GEM_HOME=$GEM_HOME"
 #CMD="$SET_PATH; $GEM_HOME/bin/unicorn_rails $UNICORN_OPTS"
 
-
 # end of user settings
+
+old_pid="$PID.oldbin"
 
 sig () {
 test -s "$PID" && kill -$1 `cat $PID`
+}
+oldsig () {
+test -s $old_pid && kill -$1 `cat $old_pid`
 }
 
 case ${1-help} in
@@ -71,11 +75,13 @@ su - $APP_USER -c "$CMD" && exit 0
 echo >&2 "Couldn't restart"
 ;;
 reload)
-sig USR2 && echo reloaded OK && exit 0
+sig USR2 && echo "wait for start new daemon"
+sleep 3
+oldsig QUIT && echo close old daemon && exit 0
 echo >&2 "Couldn't 'hot'-reload, try to restart instead"
 ;;
 *)
-  echo >&2 "Usage: $0 <start|stop|restart|reload|force-stop>"
-  exit 1
-  ;;
+echo >&2 "Usage: $0 <start|stop|restart|reload|force-stop>"
+exit 1
+;;
 esac
