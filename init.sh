@@ -47,13 +47,8 @@ CMD="$SET_PATH; unicorn_rails $UNICORN_OPTS"
 
 # end of user settings
 
-old_pid="$PID.oldbin"
-
 sig () {
 test -s "$PID" && kill -$1 `cat $PID`
-}
-oldsig () {
-test -s $old_pid && kill -$1 `cat $old_pid`
 }
 
 case ${1-help} in
@@ -75,9 +70,7 @@ su - $APP_USER -c "$CMD" && exit 0
 echo >&2 "Couldn't restart"
 ;;
 reload)
-sig USR2 && echo "wait for start new daemon"
-sleep 3
-oldsig QUIT && echo close old daemon && exit 0
+sig USR2 && echo "wait for start new daemon" && exit 0
 echo >&2 "Couldn't 'hot'-reload, try to restart instead"
 ;;
 *)

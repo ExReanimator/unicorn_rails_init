@@ -20,11 +20,20 @@ stderr_path err_log
 stdout_path out_log
 
 before_fork do |server, worker|
-    defined?(ActiveRecord::Base) and
-        ActiveRecord::Base.connection.disconnect!
+  defined?(ActiveRecord::Base) and
+    ActiveRecord::Base.connection.disconnect!
+    
+  old_pid = pid_path + '.oldbin'
+  if File.exists?(old_pid) && server.pid != old_pid
+    begin
+      Process.kill("QUIT", File.read(old_pid).to_i)
+    rescue Errno::ENOENT, Errno::ESRCH
+      # someone else did our job for us
+    end
+  end
 end
 
 after_fork do |server, worker|
-    defined?(ActiveRecord::Base) and
-        ActiveRecord::Base.establish_connection
+  defined?(ActiveRecord::Base) and
+    ActiveRecord::Base.establish_connection
 end
